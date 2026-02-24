@@ -109,16 +109,6 @@ If you find this work useful for your research, please cite:
   url={https://github.com/Haitao-Lee/SeedPro}
 }
 ```
-
----
-
-## 📫 Contact
-
-For questions, please contact the corresponding author:
-
-**Prof. Xiaojun Chen**  
-Email: xiaojunchen@sjtu.edu.cn  
-
 ---
 
 ## 📄 License
