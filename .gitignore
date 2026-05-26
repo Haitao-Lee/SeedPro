@@ -77,8 +77,6 @@ Thumbs.db
 output/
 output_rf/
 exp/
-fig/*.png
-!fig/.gitkeep
 data/*
 !data/.gitkeep
 *.nii.gz
