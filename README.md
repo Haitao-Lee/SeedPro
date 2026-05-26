@@ -1,6 +1,11 @@
 # SeedPro: Place Brachytherapy Seeds like Expert Clinicians via Hierarchical Reinforcement Agents
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![MICCAI 2026](https://img.shields.io/badge/MICCAI-2026-blue.svg)](https://conferences.miccai.org/2026/)
+
+## News
+
+- **[2026/05]** Our paper has been **provisionally accepted to MICCAI 2026** (top 9% of 4,601 submissions)!
 
 **SeedPro** is an automatic and fine-grained preoperative planning framework for brachytherapy driven by hierarchical reinforcement learning agents. It efficiently produces expert-level treatment plans with reduced computational costs.
 
@@ -115,12 +120,11 @@ Results are saved to `./output_rf/{case_name}/`:
 If you find this work useful, please cite:
 
 ```bibtex
-@article{li2026seedpro,
+@inproceedings{li2026seedpro,
   title={SeedPro: Place Brachytherapy Seeds like Expert Clinicians via Hierarchical Reinforcement Agents},
   author={Li, Haitao and Liu, Jiaxuan and Huang, Wei and Wang, Zhongmin and Chen, Xiaojun},
-  journal={School of Mechanical Engineering, Shanghai Jiao Tong University},
-  year={2026},
-  url={https://github.com/Haitao-Lee/SeedPro}
+  booktitle={International Conference on Medical Image Computing and Computer-Assisted Intervention (MICCAI)},
+  year={2026}
 }
 ```
 
