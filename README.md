@@ -1,104 +1,118 @@
 # SeedPro: Place Brachytherapy Seeds like Expert Clinicians via Hierarchical Reinforcement Agents
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Status](https://img.shields.io/badge/Status-In--Submission-blue)](https://github.com/Haitao-Lee/SeedPro)
 
-**SeedPro** is an automatic and fine-grained preoperative planning framework for brachytherapy driven by hierarchical reinforcement learning agents.  
-It efficiently produces expert-level treatment plans with reduced computational costs, ensuring high reproducibility and precise dose optimization.
+**SeedPro** is an automatic and fine-grained preoperative planning framework for brachytherapy driven by hierarchical reinforcement learning agents. It efficiently produces expert-level treatment plans with reduced computational costs.
 
----
+![SeedPro Framework](fig/fig1.png)
 
-## 📖 Introduction
+## Highlights
 
-Accurate preoperative planning plays a pivotal role in brachytherapy. However, manual planning is labor-intensive and often suffers from limited reproducibility. 
+- **Expert-like Planning**: Mimics clinical decision-making through hierarchical state space construction
+- **Minimized Puncture**: Prioritizes reducing needle count over seed count, following real-world clinical principles
+- **SOTA Performance**: Achieves 12-20% reduction in OAR exposure and 25% fewer punctures compared to existing methods
+- **High Success Rate**: 100% success rate in achieving V100 > 90% and D90 >= 120 Gy
 
-Although AI-driven approaches have recently emerged, many generate mechanically rigid seed arrangements that lack clinical practicality — such as excessive puncture trajectories or inefficient seed distributions.
+## Method
 
-**SeedPro** addresses these limitations by:  
+SeedPro consists of three core components:
 
-- Emulating expert clinical decision-making through a multi-level state space generation algorithm  
-- Prioritizing minimization of insertion needles ($n_p$) over total seeds ($n_s$), following real-world planning principles  
-- Achieving state-of-the-art (SOTA) dosimetric performance with improved healthy tissue protection  
+### 1. Multi-level State Space Construction
 
----
+Constructs candidate trajectories by sampling directions within a conical region around the reference axis. The state space is hierarchically built from single-trajectory to multi-trajectory combinations, filtering by dosimetric quality at each level.
 
-## 🛠️ Methodology
+### 2. Hierarchical Reinforcement Learning
 
-The SeedPro framework consists of three core components:
+- **High-level Agent**: Selects optimal trajectory combinations from the candidate state space
+- **Low-level Agent**: Performs fine-grained seed placement within selected trajectories
 
-### 1️⃣ Multi-level State Space Construction  
-A generation algorithm that mimics hierarchical clinical reasoning and enables global fine-grained optimization.
+### 3. Segmented Adaptive Objective Function
 
-### 2️⃣ Hierarchical Reinforcement Learning-based Sampling  
-
-- **High-level Agent ($\Omega_h$):**  
-  Performs coarse-grained selection of trajectory combinations from the candidate state space.  
-
-- **Low-level Agent ($\Omega_l$):**  
-  Conducts fine-grained seed placement within selected trajectories until dosimetric objectives are satisfied.
-
-### 3️⃣ Segmented Adaptive Objective Function  
 A multi-objective reward mechanism that:
+- Ensures sufficient tumor dose coverage (DVH compliance)
+- Penalizes excessive dose to organs at risk (OARs)
+- Encourages reduced puncture trajectories
 
-- Ensures sufficient tumoricidal dose coverage  
-- Penalizes excessive dose to Organs at Risk (OARs)  
-- Encourages reduced puncture trajectories and seed redundancy  
+## Project Structure
 
----
+```
+SeedPro/
+├── main.py                 # Entry point for planning
+├── config.py               # Configuration and arguments
+├── core.py                 # Core planning algorithms
+├── utils.py                # Utility functions
+├── models.py               # Neural network models (BrachyPlanNet)
+├── geometry.py             # Geometric operations
+├── reinforcement.py        # Hierarchical RL implementation
+├── visualizer.py           # Visualization tools
+├── dose_pre/               # Dose prediction module
+│   ├── myDoseNet.py        # Dose calculation network (U-Net)
+│   ├── functions.py        # Dose calculation functions
+│   └── predict_crop.py     # Prediction utilities
+├── data/                   # Data directory (place your data here)
+└── fig/                    # Figures
+```
 
-## 📊 Experimental Results
+## Installation
 
-Experiments were conducted on an in-house clinical dataset of **17 patients** from Ruijin Hospital, including pancreatic, head & neck, and other tumor cases.
+### Prerequisites
 
-### 🔬 Performance Highlights
+- Python 3.8+
+- CUDA-capable GPU (recommended)
 
-- **100% Success Rate (SR)** in achieving:
-  - $V_{100} > 90\%$  
-  - $D_{90} \ge 120$ Gy  
-
-- Reduced number of:
-  - Puncture needles ($n_p$)  
-  - Implanted seeds ($n_s$)  
-
-- Comparable or improved dosimetric quality versus SOTA methods
-
-### 📈 Quantitative Comparison
-
-| Method | Success Rate | $n_p$ (Needles) | $n_s$ (Seeds) |
-|:------:|:------------:|:---------------:|:-------------:|
-| **SeedPro (Ours)** | **100.00%** | **Lower** | **Fewer** |
-| BrachyPlan | 100.00% | Higher | More |
-
----
-
-## 🚀 Installation & Usage
-
-### 1️⃣ Clone the Repository
+### Install Dependencies
 
 ```bash
 git clone https://github.com/Haitao-Lee/SeedPro.git
 cd SeedPro
+pip install -r requirements.txt
 ```
 
-### 2️⃣ Install Dependencies
+### Download Model Weights
+
+Download the pre-trained dose calculation model and place it in `dose_pre/`:
 
 ```bash
-pip install torch numpy scipy
+# The dose_model.pth file should be placed at:
+# dose_pre/dose_model.pth
 ```
 
-### 3️⃣ Training / Inference
+## Usage
 
-The optimization follows the coarse-to-fine two-stage hierarchical learning strategy described in Algorithm 1 of the paper.
+### 1. Prepare Data
+
+Place your NIfTI files in the `data/` directory:
+- CT scan: `data/pt_XXX_ct.nii.gz`
+- Segmentation label: `data/pt_XXX_label.nii.gz`
+
+### 2. Configure Parameters
+
+Edit `config.py` to set your parameters:
+
+```python
+parser.add_argument('--case_name', default='pt_163')
+parser.add_argument('--dose_image_path', default='./data/pt_163_ct.nii.gz')
+parser.add_argument('--target_image_path', default='./data/pt_163_label.nii.gz')
+parser.add_argument('--DVH_rate', default=0.9)  # Target coverage rate
+```
+
+### 3. Run Planning
 
 ```bash
-python main.py --episodes 400 --goal_d90 120
+python main.py
 ```
 
----
+### 4. Output
 
-## 📝 Citation
+Results are saved to `./output_rf/{case_name}/`:
+- `seed_X_Y.stl`: 3D seed geometry files
+- `dose_X_Y.nii.gz`: Dose distribution files
 
-If you find this work useful for your research, please cite:
+![Experimental Results](fig/exp.png)
+
+## Citation
+
+If you find this work useful, please cite:
 
 ```bibtex
 @article{li2026seedpro,
@@ -109,8 +123,11 @@ If you find this work useful for your research, please cite:
   url={https://github.com/Haitao-Lee/SeedPro}
 }
 ```
----
 
-## 📄 License
+## License
 
-This project is released under the MIT License.
+This project is released under the [MIT License](LICENSE).
+
+## Acknowledgments
+
+This work was supported by Shanghai Jiao Tong University School of Mechanical Engineering.
